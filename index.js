@@ -35,6 +35,48 @@ server.post("/api/cars", validateCar, (req, res) => {
     );
 });
 
+server.put("/api/cars/:id", validateCarId, validateCar, (req, res) => {
+  db("cars")
+    .where("id", req.car.id)
+    .update(req.body)
+    .then(() => {
+      db("cars")
+        .select()
+        .where("id", req.car.id)
+        .first()
+        .then((car) => res.status(200).json(car))
+        .catch((error) =>
+          res
+            .status(500)
+            .json({ message: "could not retrieve updated car", error })
+        );
+    })
+    .catch((error) =>{
+    console.log(error);
+      res.status(500).json({ message: "could not update car", error })
+    });
+});
+
+function validateCarId(req, res, next) {
+  db("cars")
+    .select()
+    .where("id", req.params.id)
+    .first()
+    .then((car) => {
+      if (car) {
+        req.car = car;
+        next();
+      } else {
+        res
+          .status(404)
+          .json({ message: "could not find car with specified id" });
+      }
+    })
+    .catch((error) =>
+      res.status(500).json({ message: "could not retrieve car data", error })
+    );
+}
+
 function validateCar(req, res, next) {
   if (
     req.body.vin === undefined ||
