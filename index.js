@@ -51,9 +51,22 @@ server.put("/api/cars/:id", validateCarId, validateCar, (req, res) => {
             .json({ message: "could not retrieve updated car", error })
         );
     })
-    .catch((error) =>{
-    console.log(error);
-      res.status(500).json({ message: "could not update car", error })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: "could not update car", error });
+    });
+});
+
+server.delete("/api/cars/:id", validateCarId, (req, res) => {
+  db("cars")
+    .where("id", req.car.id)
+    .del()
+    .then(() => {
+      res.status(200).json(req.car);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.status(500).json({ message: "could not delete car", error });
     });
 });
 
